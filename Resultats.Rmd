@@ -1,0 +1,413 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(here)
+source(here("code", "packages.R"))
+source(here("code", "functions_data.R"))
+source(here("code", "functions_analyze.R"))
+source(here("code", "functions_visualization.R"))
+```
+
+```{r}
+tar_visnetwork()
+```
+
+# Results
+```{r}
+tar_make()
+tar_load(flow_chart)
+tar_load(table1)
+tar_load(table_pec)
+tar_load(univariate_glm)
+tar_load(univariate_glmIV)
+tar_load(multivariate_glm)
+tar_load(multivariate_glmIV)
+tar_load(kendall_table)
+tar_load(kendall_tableIV)
+tar_load(hist_tau)
+
+View(flow_chart)
+View(table1)
+View(table_pec)
+View(univariate_glm)
+View(univariate_glmIV)
+View(multivariate_glm)
+View(multivariate_glmIV)
+View(kendall_table)
+View(kendall_tableIV)
+```
+
+
+# Download results
+```{r}
+write_xlsx(flow_chart, here("article", "resultats", str_glue("{Sys.time()}_flow_chart.xlsx")))
+write_xlsx(table1, here("article", "resultats", str_glue("{Sys.time()}_table1.xlsx")))
+write_xlsx(table_pec, here("article", "resultats", str_glue("{Sys.time()}_table_pec.xlsx")))
+write_xlsx(univariate_glm, here("article", "resultats", str_glue("{Sys.time()}_univariate_glm.xlsx")))
+write_xlsx(univariate_glmIV, here("article", "resultats", str_glue("{Sys.time()}_univariate_glmIV.xlsx")))
+write_xlsx(multivariate_glm, here("article", "resultats", str_glue("{Sys.time()}_multivariate_glm.xlsx")))
+write_xlsx(multivariate_glmIV, here("article", "resultats", str_glue("{Sys.time()}_multivariate_glmIV.xlsx")))
+write_xlsx(kendall_table, here("article", "resultats", str_glue("{Sys.time()}_kendall_table.xlsx")))
+write_xlsx(kendall_tableIV, here("article", "resultats", str_glue("{Sys.time()}_kendall_tableIV.xlsx")))
+```
+
+
+# Rcspline hd var and binary outcome whole cohort
+```{r}
+tar_load(analyze_df)
+tar_load(table_hd)
+
+ rcspline.plot(
+    x = analyze_df %>% pull(PAM_mean) %>% as_list(), 
+                y=analyze_df %>% pull(postop_ischemia) %>% as_list(), 
+                model="logistic", 
+                nk=3,
+                show="prob",
+                plotcl=TRUE, 
+                showknots=FALSE, 
+                add=FALSE,
+                lty=1, 
+                noprint=TRUE,
+                ylim=c(0,1), 
+                xlab="DAB mean", 
+                main=title,
+                statloc = "none") 
+rcspline_pad_mean <- draw_rscpline(var=PAD_mean, "DAP mean over the whole surgery")
+draw_rscpline(PAM_mean, "MAP mean over the whole surgery")
+draw_rscpline(preop_vol, "Preoperative tumor volume")
+draw_rscpline(bilan_entree_sortie_normalized, "Fluid balance, mL/kg")
+draw_rscpline(postop_vol, "Postoperative tumor residual volume, mm3")
+draw_rscpline(blood_loss, "Intraoperative blood loss, mL")
+draw_rscpline(perc_resection, "Percentage of resection")
+
+
+draw_rscpline(PAD_var, "DAP variation")
+draw_rscpline(PAM_var, "MAP variation")
+draw_rscpline(PAS_var, "SAP variation")
+draw_rscpline(ppulsee_var, "pulsed pression variation")
+draw_rscpline(FC_var, "Heart rate variation (OR:1203, p<0.05)")
+
+draw_rscpline(PAS_max, "Maximum SAP, mmHg (OR: 1.02, p< 0.05)")
+draw_rscpline(PAM_max, "Maximum MAP, mmHg")
+draw_rscpline(PAD_max, "Maximum DAP, mmHg")
+draw_rscpline(ppulsee_max, "Maximum pulsed pression, mmHg")
+draw_rscpline(FC_max, "Maximal heart rate, btm/min")
+
+draw_rscpline(PAS_min, "Minimum SAP, mmHg")
+draw_rscpline(PAM_min, "Minimum MAP, mmHg")
+draw_rscpline(PAD_min, "Minimum DAP, mmHg")
+draw_rscpline(ppulsee_min, "Minimum pulsed pression, mmHg")
+draw_rscpline(FC_min, "Minimal heart rate, btm/min")
+
+draw_rscpline(PAS_median, "Median SAP, mmHg")
+draw_rscpline(PAM_median, "Minimum MAP, mmHg")
+draw_rscpline(PAD_median, "Minimum DAP, mmHg")
+draw_rscpline(ppulsee_median, "Median pulsed pression, mmHg")
+draw_rscpline(FC_median, "Minimal heart rate, btm/min")
+
+draw_rscpline(PAS_under_70p_mins, "Cumulative time spend under 70% of the first SAP (mins), OR: 1.2, p<0.05")
+draw_rscpline(PAS_under_80p_mins, "Cumulative time spend under 80% of the first SAP (mins), OR: 1.11, p<0.05")
+draw_rscpline(PAS_under_90p_mins, "Cumulative time spend under 90% of the first SAP (mins), OR: 1.07, p<0.05")
+
+draw_rscpline(PAM_under_70p_mins, "Cumulative time spend under 70% of the first MAP (mins)")
+draw_rscpline(PAM_under_80p_mins, "Cumulative time spend under 80% of the first MAP (mins)")
+draw_rscpline(PAM_under_90p_mins, "Cumulative time spend under 90% of the first MAP (mins)")
+
+draw_rscpline(PAD_under_70p_mins, "Cumulative time spend under 70% of the first DAP (mins), OR:1.08, p<0.05")
+draw_rscpline(PAD_under_80p_mins, "Cumulative time spend under 80% of the first DAP (mins)")
+draw_rscpline(PAD_under_90p_mins, "Cumulative time spend under 90% of the first DAP (mins)")
+
+draw_rscpline(ppulsee_under_70p_mins, "Cumulative time spend under 70% of the first pulsed pressure (mins)")
+draw_rscpline(ppulsee_under_80p_mins, "Cumulative time spend under 80% of the first pulsed pressure (mins)")
+draw_rscpline(ppulsee_under_90p_mins, "Cumulative time spend under 90% of the first pulsed pressure (mins)")
+
+draw_rscpline(PAM_70, "Cumulative time of MAP spend under 70 mmHg (mins), OR: 0.61, p<0.05")
+draw_rscpline(PAM_65, "Cumulative time of MAP spend under 65 mmHg (mins)")
+
+
+draw_rscpline(preop_vol, "Volume of preoperative tumor (centimètres cubes)")
+draw_rscpline(diuresis_normalized , "Diuresis normalized (in mL/hour/kg)")
+draw_rscpline(bilan_entree_sortie , "Fluid balance (in mL)")
+draw_rscpline(age, "Age (in years)")
+draw_rscpline(moni_dur_dbl , "Monitoring duration (in seconds)")
+```
+
+# Checking linearity: all grades
+```{r}
+list_hd_var <- analyze_df %>% select(ends_with(c("_var", "_min", "_max", "_median", "_70", "_65", "_mins"))) %>% names()
+analyze_df_isch <- analyze_df %>% filter(postop_ischemia == 1)
+list_hd_var <- "PAM_65"
+
+# Whole outcome
+###hd and binary outc
+for (var in list_hd_var){
+  mypath <- file.path("/Users/utilisateur/onedrive-univ-pd/hypoTisch", "article", 
+                      "resultats", "checking_linearity_association","all_grades", 
+                      "hd_outc_bin", paste(var, ".png", sep=""))
+  png(filename=mypath)
+  draw_rscpline(var, 
+                xlab_str = var,
+                title = "Probability of postop ischemia as a binary variable",
+               df = analyze_df)
+  dev.off()
+}
+
+### non hd and continuous outc
+
+
+
+### hd and cont outc
+for (var in list_hd_var){
+  print(draw_jitter(var, title = "Geom_jitter, all grades, \npatients with postop ischemia", df=analyze_df_isch))
+    ggsave(paste0(var, ".png"), 
+           device = "png",
+           path = here("article", "resultats", 
+                          "checking_linearity_association", 
+                          "all_grades", "hd_outc_cont", "pop_with_postop_isch"))
+}
+
+
+
+# Population with ischemia only
+### hd and cont outc
+
+grade_IV_postop_isch_only <- analyze_df %>% filter(high_grade == 1 & postop_ischemia==1)
+for (var in list_hd_var){
+  print(draw_jitter(var, 
+                    title = "Geom_jitter, grade IV only, patients with postop ischemia",
+                    df=grade_IV_postop_isch_only))
+    ggsave(paste0(var, ".png"), 
+           device = "png",
+           path = here("article", "resultats", 
+                          "checking_linearity_association", 
+                          "grade_IV_only", "hd_outc_cont", "pop_with_postop_isch"))
+}
+```
+
+# Checking linearity: grade IV only
+```{r}
+list_hd_var <- analyze_df %>% select(ends_with(c("_var", "_min", "_max", "_median", "_70", "_65", "_mins"))) %>% names()
+grade_IV_all_outc <- analyze_df %>% filter(high_grade == 1)
+
+list_hd_var <- "PAM_65"
+
+# Whole outcome
+###hd and binary outc
+for (var in list_hd_var){
+  mypath <- file.path("/Users/utilisateur/onedrive-univ-pd/hypoTisch", "article", 
+                      "resultats", "checking_linearity_association","grade_IV_only", 
+                      "hd_outc_bin", paste(var, ".png", sep=""))
+  png(filename=mypath)
+  draw_rscpline(var, 
+                xlab_str = var,
+                title = "Probability of postop ischemia as a binary variable, \npop = grade IV only",
+               df = grade_IV_all_outc)
+  dev.off()
+}
+
+### non hd and continuous outc
+
+
+
+### hd and cont outc
+for (var in list_hd_var){
+  print(draw_jitter(var, title = "Geom_jitter, grade IV only, \npatients with & without postop ischemia", df=grade_IV_all_outc))
+    ggsave(paste0(var, ".png"), 
+           device = "png",
+           path = here("article", "resultats", 
+                          "checking_linearity_association", 
+                          "grade_IV_only", "hd_outc_cont", "whole_population"))
+}
+
+
+
+# Population with ischemia only
+### hd and cont outc
+
+grade_IV_postop_isch_only <- analyze_df %>% filter(high_grade == 1 & postop_ischemia==1)
+for (var in list_hd_var){
+  print(draw_jitter(var, 
+                    title = "Geom_jitter, grade IV only, patients with postop ischemia",
+                    df=grade_IV_postop_isch_only))
+    ggsave(paste0(var, ".png"), 
+           device = "png",
+           path = here("article", "resultats", 
+                          "checking_linearity_association", 
+                          "grade_IV_only", "hd_outc_cont", "pop_with_postop_isch"))
+}
+```
+
+
+# Backward stepwise variable selection
+```{r}
+tar_load(analyze_df)
+multivar_model <- glm(postop_ischemia ~ 
+              diuresis_normalized + 
+              PAS_under_90p_mins + 
+              moni_dur_dbl + 
+              preop_vol + 
+              bilan_entree_sortie_normalized + 
+              catheco + 
+              high_grade +
+              hta + 
+              age,
+            family="binomial", 
+            data= analyze_df)
+
+summary(multivar_model)
+
+multivar_model_1 <- glm(postop_ischemia ~ 
+              diuresis_normalized + 
+              PAS_under_90p_mins + 
+              moni_dur_dbl + 
+              preop_vol + 
+              bilan_entree_sortie_normalized + 
+              catheco + 
+              high_grade +
+              hta, 
+              #age,
+            family="binomial", 
+            data= analyze_df)
+summary(multivar_model_1)
+
+multivar_model_2 <- glm(postop_ischemia ~ 
+              diuresis_normalized + 
+              PAS_under_90p_mins + 
+              moni_dur_dbl + 
+              preop_vol + 
+              bilan_entree_sortie_normalized + 
+              catheco + 
+              high_grade,# +
+              #hta, 
+              #age,
+            family="binomial", 
+            data= analyze_df)
+summary(multivar_model_2)
+
+multivar_model_3 <- glm(postop_ischemia ~ 
+              diuresis_normalized + 
+              PAS_under_90p_mins + 
+              #moni_dur_dbl + 
+              preop_vol + 
+              bilan_entree_sortie_normalized + 
+              catheco + 
+              high_grade,# +
+              #hta, 
+              #age,
+            family="binomial", 
+            data= analyze_df)
+summary(multivar_model_3)
+
+multivar_model_4 <- glm(postop_ischemia ~ 
+              diuresis_normalized + 
+              PAS_under_90p_mins + 
+              #moni_dur_dbl + 
+              preop_vol + 
+              bilan_entree_sortie_normalized + 
+              catheco, #+ 
+              #high_grade,# +
+              #hta, 
+              #age,
+            family="binomial", 
+            data= analyze_df)
+summary(multivar_model_4)
+
+multivar_model_5 <- glm(postop_ischemia ~ 
+              diuresis_normalized + 
+              #PAS_under_90p_mins + 
+              #moni_dur_dbl + 
+              preop_vol + 
+              bilan_entree_sortie_normalized + 
+              catheco ,#+ 
+              #high_grade,# +
+              #hta, 
+              #age,
+            family="binomial", 
+            data= analyze_df)
+summary(multivar_model_5)
+
+multivar_model_6 <- glm(postop_ischemia ~ 
+              diuresis_normalized + 
+              #PAS_under_90p_mins + 
+              #moni_dur_dbl + 
+              preop_vol,# + 
+              #bilan_entree_sortie_normalized + 
+              #catheco, #+ 
+              #high_grade,# +
+              #hta, 
+              #age,
+            family="binomial", 
+            data= analyze_df)
+summary(multivar_model_6)
+
+multivar_model_7 <- glm(postop_ischemia ~ 
+              diuresis_normalized + 
+              #PAS_under_90p_mins + 
+              #moni_dur_dbl + 
+              preop_vol + 
+              bilan_entree_sortie_normalized + 
+              catheco,# + 
+              #PAM_mean + 
+              #PAD_mean,# + 
+              #high_grade,# +
+              #hta, 
+              #age,
+            family="binomial", 
+            data= analyze_df)
+summary(multivar_model_7)
+
+multivar_model_8 <- glm(postop_ischemia ~ 
+              diuresis_normalized + 
+              #PAS_under_90p_mins + 
+              #moni_dur_dbl + 
+              preop_vol + 
+              #bilan_entree_sortie_normalized,# + 
+              catheco,# + 
+              #PAM_mean + 
+              #PAD_mean,# + 
+              #high_grade,# +
+              #hta, 
+              #age,
+            family="binomial", 
+            data= analyze_df)
+summary(multivar_model_8)
+
+multivar_model_9 <- glm(postop_ischemia ~ 
+              diuresis_normalized + 
+              #PAS_under_90p_mins + 
+              #moni_dur_dbl + 
+              preop_vol,# + 
+              #bilan_entree_sortie_normalized,# + 
+              #catheco,# + 
+              #PAM_mean + 
+              #PAD_mean,# + 
+              #high_grade,# +
+              #hta, 
+              #age,
+            family="binomial", 
+            data= analyze_df)
+summary(multivar_model_9)
+```
+```{r}
+alpha <- 0.975
+p_precision <- 3
+ci_precision <- 4
+
+tidy(multivar_model_9) %>%
+     filter(!row_number()==1) %>%
+    mutate(odd_ratio = exp(estimate),
+           p.value = round(p.value, p_precision),
+           lower_limit_ci = round(exp(estimate - qnorm(alpha) * std.error), ci_precision),
+           higher_limit_ci = round(exp(estimate + qnorm(alpha) * std.error), ci_precision)) %>%
+     select(term, odd_ratio, lower_limit_ci, higher_limit_ci, p.value) %>%
+    rename(variable = term) %>%
+    arrange(p.value)
+```
+
+```{r}
+
+```
+ 
